@@ -5,16 +5,19 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.webkit.*
 import android.widget.SearchView
+import android.widget.Toolbar
 import kotlinx.android.synthetic.main.activity_main.*
-
 
 
 class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+
+
+
         val bASE_URL = "https://m.youtube.com"
-        val sEARCH_PATH ="results?search_query="
+        val sEARCH_PATH = "/results?search_query="
         //Refresh
         swipeRefresh.setOnRefreshListener {
             webView.reload()
@@ -37,7 +40,12 @@ class MainActivity : AppCompatActivity() {
                         webView.loadUrl(it)
                     } else {
                         //no es url
-                        webView.loadUrl("$bASE_URL$sEARCH_PATH$it")
+                        if (it.indexOf("")>=0) {
+                            var ti = it.replace("\\s".toRegex(), "+")
+                            webView.loadUrl("$bASE_URL$sEARCH_PATH$ti")
+                        } else {
+                            webView.loadUrl("$bASE_URL$sEARCH_PATH$it")
+                        }
                     }
                 }
                 return false
@@ -46,10 +54,10 @@ class MainActivity : AppCompatActivity() {
         })
 
         // webview
-       webView.webChromeClient = object : WebChromeClient(){
+        webView.webChromeClient = object : WebChromeClient() {
 
-       }
-        webView.webViewClient = object : WebViewClient(){
+        }
+        webView.webViewClient = object : WebViewClient() {
             override fun shouldOverrideUrlLoading(
                 view: WebView?,
                 request: WebResourceRequest?
@@ -60,7 +68,7 @@ class MainActivity : AppCompatActivity() {
             override fun onPageStarted(view: WebView?, url: String?, favicon: Bitmap?) {
                 super.onPageStarted(view, url, favicon)
 
-                searchView.setQuery(url, false)
+                //searchView.setQuery(url, false)
 
                 swipeRefresh.isRefreshing = true
             }
@@ -71,16 +79,16 @@ class MainActivity : AppCompatActivity() {
                 swipeRefresh.isRefreshing = false
             }
         }
-        val setting :WebSettings = webView.settings
+        val setting: WebSettings = webView.settings
         setting.javaScriptEnabled = true
         webView.loadUrl(bASE_URL)
 
     }
 
     override fun onBackPressed() {
-        if(webView.canGoBack()) {
+        if (webView.canGoBack()) {
             webView.goBack()
-        }else{
+        } else {
             super.onBackPressed()
         }
     }
